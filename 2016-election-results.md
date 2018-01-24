@@ -1,29 +1,10 @@
-\#Instructions
+2016 Election Results analysis using dplyr and ggplot2
 
-1.  This is a take-home final examination. You have 53 hours and 30
-    minutes to solve these problems. You may use your computer,
-    books/articles, notes, course materials, internet, etc., but all
-    work must be your own. References must be appropriately cited. Links
-    to solutions copied from websites, such as StackOverflow must be
-    provided in code comments. Please explain your answers and show all
-    work; a complete argument must be presented to obtain full credit.
+I have used the following datasets to analyze the US 2016 election
+results by county.
 
-2.  All plots must be appropriately labeled, and appropriate
-    colors/labels/font sizes must be used. Submission You will be doing
-    most of this exam on computer. You must submit the corresponding
-    rmarkdown File, and the compiled pdf file. You may prefer to solve
-    the last problem on paper, please either take picture of your
-    handwritten solution and include in the rmarkdown as an image, or
-    alternatively you can submit it separately. You may submit the
-    handwritten part on paper in Ott’s mailbox too (in MGH370, ask the
-    receptionist for the exact location).
-
-3.  Statement of Compliance You must include the signed Statement of
-    Compliance in your submission. The Compliance Statement is found on
-    the last page of this exam. Failure to do so will result in your
-    exam not being accepted. Both Ott and Luke will be replying your
-    questions both on email and slack, but we won’t guarantee 24/7
-    availability! Good luck!
+US\_County\_Level\_Presidential\_Results\_08-16.csv.bz2
+county\_data.csv.bz2
 
 ``` r
 library(ggplot2)
@@ -106,31 +87,12 @@ library(mfx)
 
     ## Loading required package: betareg
 
-\#Problem 1: 2016 Election Results Data (25pt) Use the following
-datasets to analyze the US 2016 election results (available on canvas in
-files/data) by county.
-
-US\_County\_Level\_Presidential\_Results\_08-16.csv.bz2
-county\_data.csv.bz2
-
-there is also an explanation file for the county data
-county\_data\_variables.pdf. Note: the datasets can be merged by FIPS
-(Federal Information Processing Standards) codes. There are 3-digit
-county FIPS codes and 2-digit state FIPS codeds, some data use 5 digit
-FIPS instead: 2 digits for the state followed by 3 digits for the
-county.
-
-\#Task 1. Tidy the data. Merge these datasets, retain only more
-interesting variables, compute additional variables you find
-interesting, and consider giving these more descriptive names. Explain
-briefly what did you do.
-
 ``` r
 #Read the data
 pres_results <- read.csv("US_County_Level_Presidential_Results_08-16.csv.bz2")
 county_data <-read.csv("county_data.csv.bz2")
 
-#Summary statistics for presidential results
+#Statistics for presidential results
 str(pres_results)
 ```
 
@@ -151,96 +113,7 @@ str(pres_results)
     ##  $ oth_2016  : int  924 28 549 108 196 181 18980 2106 594 215 ...
 
 ``` r
-head(pres_results)
-```
-
-    ##   fips_code             county total_2008 dem_2008 gop_2008 oth_2008
-    ## 1     26041       Delta County      19064     9974     8763      327
-    ## 2     48295    Lipscomb County       1256      155     1093        8
-    ## 3      1127      Walker County      28652     7420    20722      510
-    ## 4     48389      Reeves County       3077     1606     1445       26
-    ## 5     56017 Hot Springs County       2546      619     1834       93
-    ## 6     20043    Doniphan County       3564     1115     2372       77
-    ##   total_2012 dem_2012 gop_2012 oth_2012 total_2016 dem_2016 gop_2016
-    ## 1      18043     8330     9533      180      18467     6431    11112
-    ## 2       1168      119     1044        5       1322      135     1159
-    ## 3      28497     6551    21633      313      29243     4486    24208
-    ## 4       2867     1649     1185       33       3184     1659     1417
-    ## 5       2495      523     1894       78       2535      400     1939
-    ## 6       3369      885     2397       87       3366      584     2601
-    ##   oth_2016
-    ## 1      924
-    ## 2       28
-    ## 3      549
-    ## 4      108
-    ## 5      196
-    ## 6      181
-
-``` r
-tail(pres_results)
-```
-
-    ##      fips_code        county total_2008 dem_2008 gop_2008 oth_2008
-    ## 3107     17143 Peoria County      81704    45906    34579     1219
-    ## 3108     17115  Macon County      51216    25487    24948      781
-    ## 3109     29215  Texas County      10851     3410     7215      226
-    ## 3110     46051  Grant County       3830     1786     1951       93
-    ## 3111     17103    Lee County      16318     7765     8258      295
-    ## 3112     20063   Gove County       1418      261     1136       21
-    ##      total_2012 dem_2012 gop_2012 oth_2012 total_2016 dem_2016 gop_2016
-    ## 3107      78060    40050    36617     1393      77465    37436    35299
-    ## 3108      48742    22688    25249      805      47283    18211    26782
-    ## 3109      10764     2871     7618      275      10935     1728     8875
-    ## 3110       3606     1493     2034       79       3562      970     2381
-    ## 3111      15275     6932     8046      297      15215     5499     8597
-    ## 3112       1368      174     1155       39       1328      149     1127
-    ##      oth_2016
-    ## 3107     4730
-    ## 3108     2290
-    ## 3109      332
-    ## 3110      211
-    ## 3111     1119
-    ## 3112       52
-
-``` r
-summary(pres_results)
-```
-
-    ##    fips_code                   county       total_2008     
-    ##  Min.   : 1001   Washington County:  30   Min.   :     79  
-    ##  1st Qu.:19038   Jefferson County :  25   1st Qu.:   4974  
-    ##  Median :29208   Franklin County  :  24   Median :  11040  
-    ##  Mean   :30652   Jackson County   :  23   Mean   :  42154  
-    ##  3rd Qu.:46006   Lincoln County   :  23   3rd Qu.:  29065  
-    ##  Max.   :56045   Madison County   :  19   Max.   :3318248  
-    ##                  (Other)          :2968                    
-    ##     dem_2008          gop_2008         oth_2008         total_2012     
-    ##  Min.   :      8   Min.   :    67   Min.   :    0.0   Min.   :     64  
-    ##  1st Qu.:   1806   1st Qu.:  2881   1st Qu.:   70.0   1st Qu.:   4766  
-    ##  Median :   4499   Median :  6312   Median :  169.0   Median :  10732  
-    ##  Mean   :  22311   Mean   : 19208   Mean   :  587.6   Mean   :  39506  
-    ##  3rd Qu.:  12386   3rd Qu.: 16036   3rd Qu.:  441.0   3rd Qu.:  27628  
-    ##  Max.   :2295853   Max.   :956425   Max.   :65970.0   Max.   :2427869  
-    ##                                                                        
-    ##     dem_2012          gop_2012         oth_2012         total_2016     
-    ##  Min.   :      5   Min.   :    54   Min.   :    0.0   Min.   :     64  
-    ##  1st Qu.:   1555   1st Qu.:  2890   1st Qu.:   70.0   1st Qu.:   4815  
-    ##  Median :   3948   Median :  6394   Median :  168.0   Median :  10930  
-    ##  Mean   :  19990   Mean   : 18890   Mean   :  625.1   Mean   :  40896  
-    ##  3rd Qu.:  11100   3rd Qu.: 15949   3rd Qu.:  462.2   3rd Qu.:  28664  
-    ##  Max.   :1672164   Max.   :699600   Max.   :56105.0   Max.   :2314275  
-    ##                                                                        
-    ##     dem_2016          gop_2016         oth_2016     
-    ##  Min.   :      4   Min.   :    57   Min.   :     3  
-    ##  1st Qu.:   1165   1st Qu.:  3206   1st Qu.:   165  
-    ##  Median :   3140   Median :  7113   Median :   440  
-    ##  Mean   :  19561   Mean   : 19344   Mean   :  1992  
-    ##  3rd Qu.:   9535   3rd Qu.: 17392   3rd Qu.:  1394  
-    ##  Max.   :1654626   Max.   :590465   Max.   :117058  
-    ## 
-
-``` r
-#Summary statistics for county data
+#Statistics for county data
 str(county_data)
 ```
 
@@ -347,649 +220,6 @@ str(county_data)
     ##   [list output truncated]
 
 ``` r
-head(county_data)
-```
-
-    ##   SUMLEV REGION DIVISION STATE COUNTY  STNAME        CTYNAME CENSUS2010POP
-    ## 1     40      3        6     1      0 Alabama        Alabama       4779736
-    ## 2     50      3        6     1      1 Alabama Autauga County         54571
-    ## 3     50      3        6     1      3 Alabama Baldwin County        182265
-    ## 4     50      3        6     1      5 Alabama Barbour County         27457
-    ## 5     50      3        6     1      7 Alabama    Bibb County         22915
-    ## 6     50      3        6     1      9 Alabama  Blount County         57322
-    ##   ESTIMATESBASE2010 POPESTIMATE2010 POPESTIMATE2011 POPESTIMATE2012
-    ## 1           4780131         4785492         4799918         4815960
-    ## 2             54571           54742           55255           55027
-    ## 3            182265          183199          186653          190403
-    ## 4             27457           27348           27326           27132
-    ## 5             22919           22861           22736           22645
-    ## 6             57324           57376           57707           57772
-    ##   POPESTIMATE2013 POPESTIMATE2014 POPESTIMATE2015 POPESTIMATE2016
-    ## 1         4829479         4843214         4853875         4863300
-    ## 2           54792           54977           55035           55416
-    ## 3          195147          199745          203690          208563
-    ## 4           26938           26763           26270           25965
-    ## 5           22501           22511           22561           22643
-    ## 6           57746           57621           57676           57704
-    ##   NPOPCHG_2010 NPOPCHG_2011 NPOPCHG_2012 NPOPCHG_2013 NPOPCHG_2014
-    ## 1         5361        14426        16042        13519        13735
-    ## 2          171          513         -228         -235          185
-    ## 3          934         3454         3750         4744         4598
-    ## 4         -109          -22         -194         -194         -175
-    ## 5          -58         -125          -91         -144           10
-    ## 6           52          331           65          -26         -125
-    ##   NPOPCHG_2015 NPOPCHG_2016 BIRTHS2010 BIRTHS2011 BIRTHS2012 BIRTHS2013
-    ## 1        10661         9425      14231      59689      59066      57939
-    ## 2           58          381        151        636        614        574
-    ## 3         3945         4873        516       2188       2092       2161
-    ## 4         -493         -305         70        335        300        283
-    ## 5           50           82         44        266        245        258
-    ## 6           55           28        183        744        711        646
-    ##   BIRTHS2014 BIRTHS2015 BIRTHS2016 DEATHS2010 DEATHS2011 DEATHS2012
-    ## 1      58906      59034      58556      11086      48817      48372
-    ## 2        640        636        631        154        507        560
-    ## 3       2214       2237       2274        532       1825       1882
-    ## 4        265        258        253        128        318        293
-    ## 5        254        259        266         34        277        239
-    ## 6        620        689        663        132        568        593
-    ##   DEATHS2013 DEATHS2014 DEATHS2015 DEATHS2016 NATURALINC2010
-    ## 1      50845      49693      51407      52405           3145
-    ## 2        582        575        475        494             -3
-    ## 3       1903       1989       2080       2113            -16
-    ## 4        295        313        319        314            -58
-    ## 5        281        250        207        237             10
-    ## 6        584        587        634        622             51
-    ##   NATURALINC2011 NATURALINC2012 NATURALINC2013 NATURALINC2014
-    ## 1          10872          10694           7094           9213
-    ## 2            129             54             -8             65
-    ## 3            363            210            258            225
-    ## 4             17              7            -12            -48
-    ## 5            -11              6            -23              4
-    ## 6            176            118             62             33
-    ##   NATURALINC2015 NATURALINC2016 INTERNATIONALMIG2010 INTERNATIONALMIG2011
-    ## 1           7627           6151                 1360                 4816
-    ## 2            161            137                   33                   18
-    ## 3            157            161                   66                  183
-    ## 4            -61            -61                    2                   -4
-    ## 5             52             29                    2                   10
-    ## 6             55             41                    5                   -3
-    ##   INTERNATIONALMIG2012 INTERNATIONALMIG2013 INTERNATIONALMIG2014
-    ## 1                 4695                 4179                 4732
-    ## 2                    2                    2                    6
-    ## 3                  176                  209                  239
-    ## 4                  -10                   -9                   -8
-    ## 5                   13                   13                   18
-    ## 6                   18                   29                   32
-    ##   INTERNATIONALMIG2015 INTERNATIONALMIG2016 DOMESTICMIG2010
-    ## 1                 5110                 4738             866
-    ## 2                    8                    7             134
-    ## 3                  257                  243             867
-    ## 4                   -6                   -5             -54
-    ## 5                   18                   18             -69
-    ## 6                   36                   38              -3
-    ##   DOMESTICMIG2011 DOMESTICMIG2012 DOMESTICMIG2013 DOMESTICMIG2014
-    ## 1           -1416             414            1619             420
-    ## 2             321            -294            -253             118
-    ## 3            2731            3333            4178            3759
-    ## 4             -31            -192            -190            -113
-    ## 5            -123            -111            -148               2
-    ## 6             104             -67             -94            -161
-    ##   DOMESTICMIG2015 DOMESTICMIG2016 NETMIG2010 NETMIG2011 NETMIG2012
-    ## 1           -3114            -864       2226       3400       5109
-    ## 2            -154             228        167        339       -292
-    ## 3            3492            4046        933       2914       3509
-    ## 4            -440            -248        -52        -35       -202
-    ## 5               2              34        -67       -113        -98
-    ## 6             -81             -65          2        101        -49
-    ##   NETMIG2013 NETMIG2014 NETMIG2015 NETMIG2016 RESIDUAL2010 RESIDUAL2011
-    ## 1       5798       5152       1996       3874          -10          154
-    ## 2       -251        124       -146        235            7           45
-    ## 3       4387       3998       3749       4289           17          177
-    ## 4       -199       -121       -446       -253            1           -4
-    ## 5       -135         20         20         52           -1           -1
-    ## 6        -65       -129        -45        -27           -1           54
-    ##   RESIDUAL2012 RESIDUAL2013 RESIDUAL2014 RESIDUAL2015 RESIDUAL2016
-    ## 1          239          627         -630         1038         -600
-    ## 2           10           24           -4           43            9
-    ## 3           31           99          375           39          423
-    ## 4            1           17           -6           14            9
-    ## 5            1           14          -14          -22            1
-    ## 6           -4          -23          -29           45           14
-    ##   GQESTIMATESBASE2010 GQESTIMATES2010 GQESTIMATES2011 GQESTIMATES2012
-    ## 1              116185          116214          115521          115697
-    ## 2                 455             455             455             455
-    ## 3                2307            2307            2263            2242
-    ## 4                3193            3193            3379            3388
-    ## 5                2224            2224            2224            2225
-    ## 6                 489             489             489             489
-    ##   GQESTIMATES2013 GQESTIMATES2014 GQESTIMATES2015 GQESTIMATES2016
-    ## 1          116984          119189          120174          119659
-    ## 2             455             455             455             455
-    ## 3            2296            2333            2339            2341
-    ## 4            3388            3352            3198            3186
-    ## 5            2224            2241            2255            2252
-    ## 6             489             489             489             489
-    ##   RBIRTH2011 RBIRTH2012 RBIRTH2013 RBIRTH2014 RBIRTH2015 RBIRTH2016
-    ## 1   12.45414   12.28510   12.01376  12.179855  12.175613  12.052062
-    ## 2   11.56395   11.13509   10.45356  11.660851  11.562375  11.425881
-    ## 3   11.83176   11.09649   11.20996  11.213192  11.089767  11.032060
-    ## 4   12.25445   11.01766   10.46791   9.869462   9.729791   9.686991
-    ## 5   11.66743   10.79747   11.42958  11.285879  11.492723  11.768870
-    ## 6   12.92980   12.31393   11.18440  10.748308  11.951742  11.492460
-    ##   RDEATH2011 RDEATH2012 RDEATH2013 RDEATH2014 RDEATH2015 RDEATH2016
-    ## 1  10.185688  10.060860  10.542807   10.27490  10.602563  10.786057
-    ## 2   9.218433  10.155782  10.599259   10.47655   8.635422   8.945143
-    ## 3   9.868812   9.982602   9.871612   10.07364  10.311450  10.250987
-    ## 4  11.632586  10.760586  10.911781   11.65714  12.030245  12.022590
-    ## 5  12.149922  10.533042  12.448500   11.10815   9.185304  10.485798
-    ## 6   9.871136  10.270266  10.110978   10.17622  10.997684  10.781765
-    ##   RNATURALINC2011 RNATURALINC2012 RNATURALINC2013 RNATURALINC2014
-    ## 1       2.2684476       2.2242379       1.4709543       1.9049504
-    ## 2       2.3455185       0.9793076      -0.1456943       1.1843052
-    ## 3       1.9629473       1.1138929       1.3383478       1.1395521
-    ## 4       0.6218678       0.2570788      -0.4438691      -1.7876762
-    ## 5      -0.4824879       0.2644278      -1.0189164       0.1777304
-    ## 6       3.0586620       2.0436616       1.0734258       0.5720873
-    ##   RNATURALINC2015 RNATURALINC2016 RINTERNATIONALMIG2011
-    ## 1       1.5730494       1.2660058            1.00486051
-    ## 2       2.9269534       2.4807381            0.32728165
-    ## 3       0.7783162       0.7810738            0.98958502
-    ## 4      -2.3004544      -2.3355987           -0.14632184
-    ## 5       2.3074192       1.2830723            0.43862535
-    ## 6       0.9540578       0.7106951           -0.05213628
-    ##   RINTERNATIONALMIG2012 RINTERNATIONALMIG2013 RINTERNATIONALMIG2014
-    ## 1            0.97650989            0.86652355             0.9784245
-    ## 2            0.03627065            0.03642357             0.1093205
-    ## 3            0.93354833            1.08416548             1.2104575
-    ## 4           -0.36725550           -0.33290179            -0.2979460
-    ## 5            0.57292700            0.57590927             0.7997867
-    ## 6            0.31174499            0.50208626             0.5547514
-    ##   RINTERNATIONALMIG2015 RINTERNATIONALMIG2016 RDOMESTICMIG2011
-    ## 1             1.0539245             0.9751805        -0.295449
-    ## 2             0.1454387             0.1267530         5.836523
-    ## 3             1.2740590             1.1788877        14.768069
-    ## 4            -0.2262742            -0.1914425        -1.133994
-    ## 5             0.7987220             0.7963897        -5.395092
-    ## 6             0.6244742             0.6586930         1.807391
-    ##   RDOMESTICMIG2012 RDOMESTICMIG2013 RDOMESTICMIG2014 RDOMESTICMIG2015
-    ## 1       0.08610758        0.3357027       0.08684241      -0.64225460
-    ## 2      -5.33178579       -4.6075816       2.14996948      -2.79969458
-    ## 3      17.67907154       21.6729348      19.03811675      17.31133888
-    ## 4      -7.05130559       -7.0279268      -4.20848774     -16.59344182
-    ## 5      -4.89191512       -6.5565056       0.08886519       0.08874689
-    ## 6      -1.16038414       -1.6274520      -2.79109277      -1.40506691
-    ##   RDOMESTICMIG2016 RNETMIG2011 RNETMIG2012 RNETMIG2013 RNETMIG2014
-    ## 1       -0.1778295   0.7094115   1.0626175    1.202226   1.0652669
-    ## 2        4.1285276   6.1638045  -5.2955151   -4.571158   2.2592900
-    ## 3       19.6287231  15.7576544  18.6126199   22.757100  20.2485743
-    ## 4       -9.4955490  -1.2803161  -7.4185611   -7.360829  -4.5064338
-    ## 5        1.5042917  -4.9564664  -4.3189881   -5.980596   0.8886519
-    ## 6       -1.1267117   1.7552549  -0.8486391   -1.125366  -2.2363414
-    ##   RNETMIG2015 RNETMIG2016
-    ## 1   0.4116699   0.7973511
-    ## 2  -2.6542559   4.2552806
-    ## 3  18.5853979  20.8076109
-    ## 4 -16.8197160  -9.6869915
-    ## 5   0.8874689   2.3006814
-    ## 6  -0.7805927  -0.4680187
-
-``` r
-tail(county_data)
-```
-
-    ##      SUMLEV REGION DIVISION STATE COUNTY  STNAME           CTYNAME
-    ## 3188     50      4        8    56     35 Wyoming   Sublette County
-    ## 3189     50      4        8    56     37 Wyoming Sweetwater County
-    ## 3190     50      4        8    56     39 Wyoming      Teton County
-    ## 3191     50      4        8    56     41 Wyoming      Uinta County
-    ## 3192     50      4        8    56     43 Wyoming   Washakie County
-    ## 3193     50      4        8    56     45 Wyoming     Weston County
-    ##      CENSUS2010POP ESTIMATESBASE2010 POPESTIMATE2010 POPESTIMATE2011
-    ## 3188         10247             10247           10243           10145
-    ## 3189         43806             43806           43589           44028
-    ## 3190         21294             21294           21297           21474
-    ## 3191         21118             21118           21102           20918
-    ## 3192          8533              8533            8544            8470
-    ## 3193          7208              7208            7182            7112
-    ##      POPESTIMATE2012 POPESTIMATE2013 POPESTIMATE2014 POPESTIMATE2015
-    ## 3188           10414           10082           10019            9877
-    ## 3189           45086           45144           44970           44693
-    ## 3190           21688           22319           22846           23073
-    ## 3191           20997           21006           20871           20819
-    ## 3192            8437            8442            8306            8334
-    ## 3193            7065            7163            7179            7230
-    ##      POPESTIMATE2016 NPOPCHG_2010 NPOPCHG_2011 NPOPCHG_2012 NPOPCHG_2013
-    ## 3188            9769           -4          -98          269         -332
-    ## 3189           44165         -217          439         1058           58
-    ## 3190           23191            3          177          214          631
-    ## 3191           20773          -16         -184           79            9
-    ## 3192            8235           11          -74          -33            5
-    ## 3193            7236          -26          -70          -47           98
-    ##      NPOPCHG_2014 NPOPCHG_2015 NPOPCHG_2016 BIRTHS2010 BIRTHS2011
-    ## 3188          -63         -142         -108         34        135
-    ## 3189         -174         -277         -528        167        641
-    ## 3190          527          227          118         76        260
-    ## 3191         -135          -52          -46         72        324
-    ## 3192         -136           28          -99         26        108
-    ## 3193           16           51            6         26         81
-    ##      BIRTHS2012 BIRTHS2013 BIRTHS2014 BIRTHS2015 BIRTHS2016 DEATHS2010
-    ## 3188        138        132        123        119        118          3
-    ## 3189        595        657        630        621        604         76
-    ## 3190        231        261        243        243        239         10
-    ## 3191        311        316        323        311        309         49
-    ## 3192         90         95         89        105         98         34
-    ## 3193         74         93         74         72         67          9
-    ##      DEATHS2011 DEATHS2012 DEATHS2013 DEATHS2014 DEATHS2015 DEATHS2016
-    ## 3188         53         38         48         57         49         58
-    ## 3189        251        272        296        265        265        275
-    ## 3190         87         61         97         79         79         87
-    ## 3191        139        115        136        148        121        134
-    ## 3192         79        105         77         73         92         93
-    ## 3193         71         67         77         75         71         77
-    ##      NATURALINC2010 NATURALINC2011 NATURALINC2012 NATURALINC2013
-    ## 3188             31             82            100             84
-    ## 3189             91            390            323            361
-    ## 3190             66            173            170            164
-    ## 3191             23            185            196            180
-    ## 3192             -8             29            -15             18
-    ## 3193             17             10              7             16
-    ##      NATURALINC2014 NATURALINC2015 NATURALINC2016 INTERNATIONALMIG2010
-    ## 3188             66             70             60                    3
-    ## 3189            365            356            329                    5
-    ## 3190            164            164            152                    5
-    ## 3191            175            190            175                    2
-    ## 3192             16             13              5                    1
-    ## 3193             -1              1            -10                    1
-    ##      INTERNATIONALMIG2011 INTERNATIONALMIG2012 INTERNATIONALMIG2013
-    ## 3188                   27                   19                    1
-    ## 3189                    6                   -3                    5
-    ## 3190                   48                   27                   31
-    ## 3191                   -9                  -13                  -18
-    ## 3192                   -3                   -2                   -4
-    ## 3193                   -2                    3                    4
-    ##      INTERNATIONALMIG2014 INTERNATIONALMIG2015 INTERNATIONALMIG2016
-    ## 3188                    1                    2                    2
-    ## 3189                    6                   10                   10
-    ## 3190                   41                   49                   48
-    ## 3191                  -16                  -15                  -14
-    ## 3192                   -4                   -4                   -4
-    ## 3193                    3                    4                    4
-    ##      DOMESTICMIG2010 DOMESTICMIG2011 DOMESTICMIG2012 DOMESTICMIG2013
-    ## 3188             -36            -240             147            -406
-    ## 3189            -328              38             719            -244
-    ## 3190             -70             -40              22             416
-    ## 3191             -44            -363            -101            -165
-    ## 3192              19             -98             -16             -10
-    ## 3193             -40             -87             -57              87
-    ##      DOMESTICMIG2014 DOMESTICMIG2015 DOMESTICMIG2016 NETMIG2010 NETMIG2011
-    ## 3188            -148            -200            -182        -33       -213
-    ## 3189            -557            -614            -889       -323         44
-    ## 3190             314              24            -109        -65          8
-    ## 3191            -297            -230            -203        -42       -372
-    ## 3192            -145              22             -95         20       -101
-    ## 3193              11              44              16        -39        -89
-    ##      NETMIG2012 NETMIG2013 NETMIG2014 NETMIG2015 NETMIG2016 RESIDUAL2010
-    ## 3188        166       -405       -147       -198       -180           -2
-    ## 3189        716       -239       -551       -604       -879           15
-    ## 3190         49        447        355         73        -61            2
-    ## 3191       -114       -183       -313       -245       -217            3
-    ## 3192        -18        -14       -149         18        -99           -1
-    ## 3193        -54         91         14         48         20           -4
-    ##      RESIDUAL2011 RESIDUAL2012 RESIDUAL2013 RESIDUAL2014 RESIDUAL2015
-    ## 3188           33            3          -11           18          -14
-    ## 3189            5           19          -64           12          -29
-    ## 3190           -4           -5           20            8          -10
-    ## 3191            3           -3           12            3            3
-    ## 3192           -2            0            1           -3           -3
-    ## 3193            9            0           -9            3            2
-    ##      RESIDUAL2016 GQESTIMATESBASE2010 GQESTIMATES2010 GQESTIMATES2011
-    ## 3188           12                 550             550             550
-    ## 3189           22                 679             679             694
-    ## 3190           27                 271             271             271
-    ## 3191           -4                 270             270             247
-    ## 3192           -5                 140             140             140
-    ## 3193           -4                 313             313             313
-    ##      GQESTIMATES2012 GQESTIMATES2013 GQESTIMATES2014 GQESTIMATES2015
-    ## 3188             550             550             550             550
-    ## 3189             697             731             672             682
-    ## 3190             270             269             268             267
-    ## 3191             243             255             254             254
-    ## 3192             140             140             140             140
-    ## 3193             313             322             317             327
-    ##      GQESTIMATES2016 RBIRTH2011 RBIRTH2012 RBIRTH2013 RBIRTH2014
-    ## 3188             550   13.24308   13.42478   12.88056   12.23820
-    ## 3189             684   14.63186   13.35368   14.56278   13.98229
-    ## 3190             267   12.15777   10.70386   11.86175   10.76054
-    ## 3191             254   15.42123   14.83956   15.04654   15.42613
-    ## 3192             140   12.69543   10.64648   11.25659   10.62813
-    ## 3193             327   11.33343   10.43944   13.07281   10.31934
-    ##      RBIRTH2015 RBIRTH2016 RDEATH2011 RDEATH2012 RDEATH2013 RDEATH2014
-    ## 3188  11.962203   12.01262   5.199137   3.696678   4.683841   5.671360
-    ## 3189  13.851868   13.59472   5.729482   6.104540   6.561011   5.881439
-    ## 3190  10.583854   10.33201   4.068177   2.826560   4.408390   3.498284
-    ## 3191  14.919645   14.85863   6.615897   5.487296   6.475728   7.068319
-    ## 3192  12.620192   11.82932   9.286470  12.420891   9.123763   8.717459
-    ## 3193   9.993754    9.26310   9.934238   9.451929  10.823728  10.458792
-    ##      RDEATH2015 RDEATH2016 RNATURALINC2011 RNATURALINC2012 RNATURALINC2013
-    ## 3188   4.925613   5.904510        8.043947        9.728100        8.196721
-    ## 3189   5.911022   6.189651        8.902382        7.249142        8.001773
-    ## 3190   3.440841   3.761024        8.089593        7.877299        7.453360
-    ## 3191   5.804749   6.443547        8.805331        9.352261        8.570816
-    ## 3192  11.057692  11.225783        3.408957       -1.774413        2.132828
-    ## 3193   9.854952  10.645652        1.399188        0.987515        2.249086
-    ##      RNATURALINC2014 RNATURALINC2015 RNATURALINC2016 RINTERNATIONALMIG2011
-    ## 3188       6.5668375       7.0365903       6.1081136             2.6486168
-    ## 3189       8.1008500       7.9408452       7.4050733             0.1369597
-    ## 3190       7.2622606       7.1430127       6.5709839             2.2445115
-    ## 3191       8.3578098       9.1148957       8.4150798            -0.4283674
-    ## 3192       1.9106759       1.5625000       0.6035367            -0.3526508
-    ## 3193      -0.1394506       0.1388021      -1.3825522            -0.2798377
-    ##      RINTERNATIONALMIG2012 RINTERNATIONALMIG2013 RINTERNATIONALMIG2014
-    ## 3188            1.84833893            0.09758002            0.09949754
-    ## 3189           -0.06732949            0.11082788            0.13316466
-    ## 3190            1.25110051            1.40886677            1.81556515
-    ## 3191           -0.62030299           -0.85708164           -0.76414261
-    ## 3192           -0.23658840           -0.47396173           -0.47766897
-    ## 3193            0.42322071            0.56227158            0.41835169
-    ##      RINTERNATIONALMIG2015 RINTERNATIONALMIG2016 RDOMESTICMIG2011
-    ## 3188             0.2010454             0.2036038      -23.5432607
-    ## 3189             0.2230574             0.2250782        0.8674116
-    ## 3190             2.1341928             2.0750476       -1.8704262
-    ## 3191            -0.7195970            -0.6732064      -17.2774869
-    ## 3192            -0.4807692            -0.4828294      -11.5199248
-    ## 3193             0.5552086             0.5530209      -12.1729397
-    ##      RDOMESTICMIG2012 RDOMESTICMIG2013 RDOMESTICMIG2014 RDOMESTICMIG2015
-    ## 3188        14.300306       -39.617486       -14.725636       -20.104544
-    ## 3189        16.136634        -5.408401       -12.362119       -13.695727
-    ## 3190         1.019415        18.906083        13.904572         1.045319
-    ## 3191        -4.819277        -7.856582       -14.184397       -11.033821
-    ## 3192        -1.892707        -1.184904       -17.315500         2.644231
-    ## 3193        -8.041193        12.229407         1.533956         6.107294
-    ##      RDOMESTICMIG2016 RNETMIG2011 RNETMIG2012 RNETMIG2013 RNETMIG2014
-    ## 3188       -18.527945 -20.8946439   16.148645  -39.519906  -14.626138
-    ## 3189       -20.009453   1.0043713   16.069304   -5.297573  -12.228954
-    ## 3190        -4.712087   0.3740852    2.270516   20.314950   15.720137
-    ## 3191        -9.761493 -17.7058544   -5.439580   -8.713663  -14.948540
-    ## 3192       -11.467198 -11.8725755   -2.129296   -1.658866  -17.793169
-    ## 3193         2.212084 -12.4527774   -7.617973   12.791678    1.952308
-    ##      RNETMIG2015 RNETMIG2016
-    ## 3188  -19.903498  -18.324341
-    ## 3189  -13.472670  -19.784375
-    ## 3190    3.179512   -2.637040
-    ## 3191  -11.753418  -10.434699
-    ## 3192    2.163462  -11.950027
-    ## 3193    6.662503    2.765104
-
-``` r
-summary(county_data)
-```
-
-    ##      SUMLEV          REGION         DIVISION         STATE      
-    ##  Min.   :40.00   Min.   :1.000   Min.   :1.000   Min.   : 1.00  
-    ##  1st Qu.:50.00   1st Qu.:2.000   1st Qu.:4.000   1st Qu.:18.00  
-    ##  Median :50.00   Median :3.000   Median :5.000   Median :29.00  
-    ##  Mean   :49.84   Mean   :2.669   Mean   :5.191   Mean   :30.26  
-    ##  3rd Qu.:50.00   3rd Qu.:3.000   3rd Qu.:7.000   3rd Qu.:45.00  
-    ##  Max.   :50.00   Max.   :4.000   Max.   :9.000   Max.   :56.00  
-    ##                                                                 
-    ##      COUNTY           STNAME                  CTYNAME    
-    ##  Min.   :  0.0   Texas   : 255   Washington County:  30  
-    ##  1st Qu.: 33.0   Georgia : 160   Jefferson County :  25  
-    ##  Median : 77.0   Virginia: 134   Franklin County  :  24  
-    ##  Mean   :101.9   Kentucky: 121   Jackson County   :  23  
-    ##  3rd Qu.:133.0   Missouri: 116   Lincoln County   :  23  
-    ##  Max.   :840.0   Kansas  : 106   Madison County   :  19  
-    ##                  (Other) :2301   (Other)          :3049  
-    ##  CENSUS2010POP      ESTIMATESBASE2010  POPESTIMATE2010   
-    ##  Min.   :      82   Min.   :      82   Min.   :      83  
-    ##  1st Qu.:   11299   1st Qu.:   11291   1st Qu.:   11276  
-    ##  Median :   26424   Median :   26446   Median :   26467  
-    ##  Mean   :  193387   Mean   :  193397   Mean   :  193766  
-    ##  3rd Qu.:   71404   3rd Qu.:   71488   3rd Qu.:   71721  
-    ##  Max.   :37253956   Max.   :37254522   Max.   :37332685  
-    ##                                                          
-    ##  POPESTIMATE2011    POPESTIMATE2012    POPESTIMATE2013   
-    ##  Min.   :      90   Min.   :      81   Min.   :      89  
-    ##  1st Qu.:   11271   1st Qu.:   11201   1st Qu.:   11179  
-    ##  Median :   26418   Median :   26365   Median :   26516  
-    ##  Mean   :  195217   Mean   :  196679   Mean   :  198061  
-    ##  3rd Qu.:   72391   3rd Qu.:   72490   3rd Qu.:   72206  
-    ##  Max.   :37676861   Max.   :38011074   Max.   :38335203  
-    ##                                                          
-    ##  POPESTIMATE2014    POPESTIMATE2015    POPESTIMATE2016   
-    ##  Min.   :      87   Min.   :      88   Min.   :      88  
-    ##  1st Qu.:   11108   1st Qu.:   11163   1st Qu.:   11191  
-    ##  Median :   26452   Median :   26485   Median :   26407  
-    ##  Mean   :  199539   Mean   :  201000   Mean   :  202397  
-    ##  3rd Qu.:   72376   3rd Qu.:   72531   3rd Qu.:   72351  
-    ##  Max.   :38680810   Max.   :38993940   Max.   :39250017  
-    ##                                                          
-    ##   NPOPCHG_2010      NPOPCHG_2011     NPOPCHG_2012     NPOPCHG_2013   
-    ##  Min.   :-6634.0   Min.   :-14310   Min.   : -8920   Min.   :-17372  
-    ##  1st Qu.:  -18.0   1st Qu.:   -87   1st Qu.:  -119   1st Qu.:  -109  
-    ##  Median :    7.0   Median :    10   Median :    -9   Median :    -3  
-    ##  Mean   :  369.6   Mean   :  1450   Mean   :  1463   Mean   :  1382  
-    ##  3rd Qu.:   86.0   3rd Qu.:   250   3rd Qu.:   234   3rd Qu.:   218  
-    ##  Max.   :98210.0   Max.   :402079   Max.   :425266   Max.   :401870  
-    ##                                                                      
-    ##   NPOPCHG_2014     NPOPCHG_2015     NPOPCHG_2016      BIRTHS2010      
-    ##  Min.   :-11961   Min.   :-28497   Min.   :-37508   Min.   :     0.0  
-    ##  1st Qu.:  -101   1st Qu.:  -101   1st Qu.:  -103   1st Qu.:    31.0  
-    ##  Median :    -2   Median :     1   Median :     5   Median :    78.0  
-    ##  Mean   :  1477   Mean   :  1461   Mean   :  1397   Mean   :   618.8  
-    ##  3rd Qu.:   238   3rd Qu.:   253   3rd Qu.:   274   3rd Qu.:   216.0  
-    ##  Max.   :471226   Max.   :484888   Max.   :432957   Max.   :123306.0  
-    ##                                                                       
-    ##    BIRTHS2011       BIRTHS2012       BIRTHS2013       BIRTHS2014    
-    ##  Min.   :     0   Min.   :     0   Min.   :     0   Min.   :     0  
-    ##  1st Qu.:   129   1st Qu.:   126   1st Qu.:   126   1st Qu.:   130  
-    ##  Median :   312   Median :   312   Median :   308   Median :   312  
-    ##  Mean   :  2489   Mean   :  2466   Mean   :  2468   Mean   :  2482  
-    ##  3rd Qu.:   856   3rd Qu.:   848   3rd Qu.:   837   3rd Qu.:   851  
-    ##  Max.   :509772   Max.   :497438   Max.   :499642   Max.   :498910  
-    ##                                                                     
-    ##    BIRTHS2015       BIRTHS2016       DEATHS2010      DEATHS2011    
-    ##  Min.   :     0   Min.   :     0   Min.   :    0   Min.   :     0  
-    ##  1st Qu.:   125   1st Qu.:   125   1st Qu.:   26   1st Qu.:   124  
-    ##  Median :   313   Median :   307   Median :   68   Median :   273  
-    ##  Mean   :  2495   Mean   :  2492   Mean   :  375   Mean   :  1574  
-    ##  3rd Qu.:   847   3rd Qu.:   844   3rd Qu.:  161   3rd Qu.:   674  
-    ##  Max.   :503303   Max.   :502848   Max.   :57299   Max.   :238419  
-    ##                                                                    
-    ##    DEATHS2012       DEATHS2013       DEATHS2014       DEATHS2015    
-    ##  Min.   :     1   Min.   :     0   Min.   :     0   Min.   :     0  
-    ##  1st Qu.:   122   1st Qu.:   125   1st Qu.:   125   1st Qu.:   119  
-    ##  Median :   271   Median :   283   Median :   283   Median :   280  
-    ##  Mean   :  1567   Mean   :  1634   Mean   :  1618   Mean   :  1683  
-    ##  3rd Qu.:   668   3rd Qu.:   700   3rd Qu.:   694   3rd Qu.:   715  
-    ##  Max.   :239600   Max.   :247773   Max.   :244043   Max.   :262984  
-    ##                                                                     
-    ##    DEATHS2016     NATURALINC2010    NATURALINC2011     NATURALINC2012    
-    ##  Min.   :     0   Min.   : -765.0   Min.   : -2898.0   Min.   : -2743.0  
-    ##  1st Qu.:   122   1st Qu.:   -7.0   1st Qu.:   -15.0   1st Qu.:   -14.0  
-    ##  Median :   282   Median :   13.0   Median :    22.0   Median :    24.0  
-    ##  Mean   :  1720   Mean   :  243.8   Mean   :   915.1   Mean   :   899.1  
-    ##  3rd Qu.:   716   3rd Qu.:   59.0   3rd Qu.:   191.0   3rd Qu.:   187.0  
-    ##  Max.   :273850   Max.   :66007.0   Max.   :271353.0   Max.   :257838.0  
-    ##                                                                          
-    ##  NATURALINC2013     NATURALINC2014     NATURALINC2015    
-    ##  Min.   : -3121.0   Min.   : -2696.0   Min.   : -3476.0  
-    ##  1st Qu.:   -22.0   1st Qu.:   -18.0   1st Qu.:   -15.0  
-    ##  Median :    14.0   Median :    18.0   Median :    18.0  
-    ##  Mean   :   834.7   Mean   :   864.9   Mean   :   812.1  
-    ##  3rd Qu.:   162.0   3rd Qu.:   170.0   3rd Qu.:   159.0  
-    ##  Max.   :251869.0   Max.   :254867.0   Max.   :240319.0  
-    ##                                                          
-    ##  NATURALINC2016     INTERNATIONALMIG2010 INTERNATIONALMIG2011
-    ##  Min.   : -3843.0   Min.   :  -21.0      Min.   :   -43      
-    ##  1st Qu.:   -20.0   1st Qu.:    0.0      1st Qu.:     1      
-    ##  Median :    14.0   Median :    2.0      Median :    11      
-    ##  Mean   :   771.5   Mean   :  125.9      Mean   :   535      
-    ##  3rd Qu.:   152.0   3rd Qu.:   15.0      3rd Qu.:    57      
-    ##  Max.   :228998.0   Max.   :28560.0      Max.   :124150      
-    ##                                                              
-    ##  INTERNATIONALMIG2012 INTERNATIONALMIG2013 INTERNATIONALMIG2014
-    ##  Min.   :  -117.0     Min.   :  -104.0     Min.   :   -77.0    
-    ##  1st Qu.:     1.0     1st Qu.:     1.0     1st Qu.:     2.0    
-    ##  Median :    10.0     Median :    11.0     Median :    13.0    
-    ##  Mean   :   563.5     Mean   :   547.4     Mean   :   612.5    
-    ##  3rd Qu.:    60.0     3rd Qu.:    62.0     3rd Qu.:    71.0    
-    ##  Max.   :122429.0     Max.   :121944.0     Max.   :138820.0    
-    ##                                                                
-    ##  INTERNATIONALMIG2015 INTERNATIONALMIG2016 DOMESTICMIG2010 
-    ##  Min.   :   -65.0     Min.   :   -67.0     Min.   :-24320  
-    ##  1st Qu.:     2.0     1st Qu.:     2.0     1st Qu.:   -35  
-    ##  Median :    13.0     Median :    14.0     Median :    -3  
-    ##  Mean   :   649.3     Mean   :   625.9     Mean   :     0  
-    ##  3rd Qu.:    77.0     3rd Qu.:    74.0     3rd Qu.:    28  
-    ##  Max.   :148098.0     Max.   :142553.0     Max.   : 29973  
-    ##                                                            
-    ##  DOMESTICMIG2011  DOMESTICMIG2012   DOMESTICMIG2013   DOMESTICMIG2014  
-    ##  Min.   :-83457   Min.   :-116357   Min.   :-110066   Min.   :-159490  
-    ##  1st Qu.:  -155   1st Qu.:   -196   1st Qu.:   -172   1st Qu.:   -161  
-    ##  Median :   -28   Median :    -52   Median :    -33   Median :    -32  
-    ##  Mean   :     0   Mean   :      0   Mean   :      0   Mean   :      0  
-    ##  3rd Qu.:    71   3rd Qu.:     50   3rd Qu.:     70   3rd Qu.:     82  
-    ##  Max.   :116100   Max.   : 141785   Max.   : 117522   Max.   : 164313  
-    ##                                                                        
-    ##  DOMESTICMIG2015   DOMESTICMIG2016     NETMIG2010         NETMIG2011    
-    ##  Min.   :-161612   Min.   :-191367   Min.   :-14182.0   Min.   :-40922  
-    ##  1st Qu.:   -173   1st Qu.:   -164   1st Qu.:   -26.0   1st Qu.:  -118  
-    ##  Median :    -36   Median :    -31   Median :     1.0   Median :   -10  
-    ##  Mean   :      0   Mean   :      0   Mean   :   125.9   Mean   :   535  
-    ##  3rd Qu.:     72   3rd Qu.:    109   3rd Qu.:    42.0   3rd Qu.:   115  
-    ##  Max.   : 207537   Max.   : 207155   Max.   : 45426.0   Max.   :207375  
-    ##                                                                         
-    ##    NETMIG2012         NETMIG2013         NETMIG2014      
-    ##  Min.   :-47834.0   Min.   :-42196.0   Min.   :-66273.0  
-    ##  1st Qu.:  -157.0   1st Qu.:  -130.0   1st Qu.:  -123.0  
-    ##  Median :   -30.0   Median :   -16.0   Median :   -16.0  
-    ##  Mean   :   563.5   Mean   :   547.4   Mean   :   612.5  
-    ##  3rd Qu.:   101.0   3rd Qu.:   110.0   3rd Qu.:   134.0  
-    ##  Max.   :214132.0   Max.   :201302.0   Max.   :257486.0  
-    ##                                                          
-    ##    NETMIG2015         NETMIG2016        RESIDUAL2010    RESIDUAL2011  
-    ##  Min.   :-73614.0   Min.   :-83210.0   Min.   :-1141   Min.   :-8751  
-    ##  1st Qu.:  -127.0   1st Qu.:  -125.0   1st Qu.:   -4   1st Qu.:   -9  
-    ##  Median :   -16.0   Median :   -12.0   Median :   -1   Median :    2  
-    ##  Mean   :   649.3   Mean   :   625.8   Mean   :    0   Mean   :    0  
-    ##  3rd Qu.:   120.0   3rd Qu.:   179.0   3rd Qu.:    1   3rd Qu.:   14  
-    ##  Max.   :328772.0   Max.   :325986.0   Max.   : 1028   Max.   : 4185  
-    ##                                                                       
-    ##   RESIDUAL2012    RESIDUAL2013     RESIDUAL2014    RESIDUAL2015   
-    ##  Min.   :-2157   Min.   :-10952   Min.   :-6934   Min.   :-13038  
-    ##  1st Qu.:   -3   1st Qu.:   -11   1st Qu.:  -13   1st Qu.:   -14  
-    ##  Median :    0   Median :     0   Median :   -2   Median :     0  
-    ##  Mean   :    0   Mean   :     0   Mean   :    0   Mean   :     0  
-    ##  3rd Qu.:    3   3rd Qu.:    13   3rd Qu.:    6   3rd Qu.:    18  
-    ##  Max.   : 2161   Max.   :  5224   Max.   :11963   Max.   :  4161  
-    ##                                                                   
-    ##   RESIDUAL2016   GQESTIMATESBASE2010 GQESTIMATES2010  GQESTIMATES2011 
-    ##  Min.   :-6451   Min.   :     0      Min.   :     0   Min.   :     0  
-    ##  1st Qu.:  -15   1st Qu.:   183      1st Qu.:   183   1st Qu.:   180  
-    ##  Median :   -2   Median :   635      Median :   635   Median :   637  
-    ##  Mean   :    0   Mean   :  5010      Mean   :  5023   Mean   :  5039  
-    ##  3rd Qu.:    7   3rd Qu.:  2408      3rd Qu.:  2415   3rd Qu.:  2430  
-    ##  Max.   :20231   Max.   :820359      Max.   :818961   Max.   :816774  
-    ##                                                                       
-    ##  GQESTIMATES2012  GQESTIMATES2013  GQESTIMATES2014  GQESTIMATES2015 
-    ##  Min.   :     0   Min.   :     0   Min.   :     0   Min.   :     0  
-    ##  1st Qu.:   182   1st Qu.:   178   1st Qu.:   179   1st Qu.:   179  
-    ##  Median :   636   Median :   635   Median :   633   Median :   633  
-    ##  Mean   :  5050   Mean   :  5044   Mean   :  5064   Mean   :  5072  
-    ##  3rd Qu.:  2432   3rd Qu.:  2415   3rd Qu.:  2469   3rd Qu.:  2470  
-    ##  Max.   :818176   Max.   :809443   Max.   :818638   Max.   :820098  
-    ##                                                                     
-    ##  GQESTIMATES2016    RBIRTH2011      RBIRTH2012       RBIRTH2013   
-    ##  Min.   :     0   Min.   : 0.00   Min.   : 0.000   Min.   : 0.00  
-    ##  1st Qu.:   177   1st Qu.:10.06   1st Qu.: 9.954   1st Qu.:10.02  
-    ##  Median :   633   Median :11.54   Median :11.444   Median :11.49  
-    ##  Mean   :  5061   Mean   :11.74   Mean   :11.636   Mean   :11.65  
-    ##  3rd Qu.:  2450   3rd Qu.:13.04   3rd Qu.:12.997   3rd Qu.:12.95  
-    ##  Max.   :813569   Max.   :32.14   Max.   :31.070   Max.   :29.30  
-    ##                                                                   
-    ##    RBIRTH2014      RBIRTH2015      RBIRTH2016       RDEATH2011    
-    ##  Min.   : 0.00   Min.   : 0.00   Min.   : 0.000   Min.   : 0.000  
-    ##  1st Qu.:10.07   1st Qu.:10.05   1st Qu.: 9.957   1st Qu.: 8.363  
-    ##  Median :11.53   Median :11.46   Median :11.359   Median :10.128  
-    ##  Mean   :11.70   Mean   :11.67   Mean   :11.552   Mean   :10.160  
-    ##  3rd Qu.:13.04   3rd Qu.:13.00   3rd Qu.:12.815   3rd Qu.:11.870  
-    ##  Max.   :29.03   Max.   :30.05   Max.   :29.435   Max.   :26.675  
-    ##                                                                   
-    ##    RDEATH2012        RDEATH2013       RDEATH2014       RDEATH2015    
-    ##  Min.   : 0.8032   Min.   : 0.000   Min.   : 0.000   Min.   : 0.000  
-    ##  1st Qu.: 8.3015   1st Qu.: 8.639   1st Qu.: 8.508   1st Qu.: 8.357  
-    ##  Median :10.0345   Median :10.465   Median :10.370   Median :10.152  
-    ##  Mean   :10.0873   Mean   :10.475   Mean   :10.366   Mean   :10.019  
-    ##  3rd Qu.:11.7962   3rd Qu.:12.279   3rd Qu.:12.197   3rd Qu.:11.774  
-    ##  Max.   :23.0187   Max.   :25.230   Max.   :27.397   Max.   :20.021  
-    ##                                                                      
-    ##    RDEATH2016     RNATURALINC2011   RNATURALINC2012   RNATURALINC2013  
-    ##  Min.   : 0.000   Min.   :-15.635   Min.   :-16.608   Min.   :-18.411  
-    ##  1st Qu.: 8.556   1st Qu.: -1.214   1st Qu.: -1.124   1st Qu.: -1.570  
-    ##  Median :10.280   Median :  1.294   Median :  1.286   Median :  0.869  
-    ##  Mean   :10.201   Mean   :  1.582   Mean   :  1.549   Mean   :  1.170  
-    ##  3rd Qu.:12.017   3rd Qu.:  4.048   3rd Qu.:  4.048   3rd Qu.:  3.608  
-    ##  Max.   :22.694   Max.   : 24.169   Max.   : 24.748   Max.   : 25.979  
-    ##                                                                        
-    ##  RNATURALINC2014   RNATURALINC2015   RNATURALINC2016   
-    ##  Min.   :-18.075   Min.   :-15.926   Min.   :-13.7595  
-    ##  1st Qu.: -1.445   1st Qu.: -1.004   1st Qu.: -1.3115  
-    ##  Median :  1.000   Median :  1.219   Median :  0.9631  
-    ##  Mean   :  1.337   Mean   :  1.648   Mean   :  1.3510  
-    ##  3rd Qu.:  3.729   3rd Qu.:  3.927   3rd Qu.:  3.7127  
-    ##  Max.   : 25.759   Max.   : 27.051   Max.   : 25.5380  
-    ##                                                        
-    ##  RINTERNATIONALMIG2011 RINTERNATIONALMIG2012 RINTERNATIONALMIG2013
-    ##  Min.   :-0.9717       Min.   :-1.08558      Min.   :-1.6618      
-    ##  1st Qu.: 0.1035       1st Qu.: 0.09424      1st Qu.: 0.1091      
-    ##  Median : 0.4534       Median : 0.45521      Median : 0.4716      
-    ##  Mean   : 0.9489       Mean   : 1.05885      Mean   : 1.0005      
-    ##  3rd Qu.: 1.1794       3rd Qu.: 1.21095      3rd Qu.: 1.2381      
-    ##  Max.   :24.6106       Max.   :42.84104      Max.   :21.2540      
-    ##                                                                   
-    ##  RINTERNATIONALMIG2014 RINTERNATIONALMIG2015 RINTERNATIONALMIG2016
-    ##  Min.   :-1.4121       Min.   :-1.2947       Min.   :-1.0433      
-    ##  1st Qu.: 0.1418       1st Qu.: 0.1571       1st Qu.: 0.1540      
-    ##  Median : 0.5578       Median : 0.5953       Median : 0.5897      
-    ##  Mean   : 1.1218       Mean   : 1.2045       Mean   : 1.1417      
-    ##  3rd Qu.: 1.4077       3rd Qu.: 1.4970       3rd Qu.: 1.4592      
-    ##  Max.   :22.4310       Max.   :25.0235       Max.   :23.8923      
-    ##                                                                   
-    ##  RDOMESTICMIG2011   RDOMESTICMIG2012   RDOMESTICMIG2013  
-    ##  Min.   :-128.205   Min.   :-147.727   Min.   :-109.873  
-    ##  1st Qu.:  -6.075   1st Qu.:  -7.528   1st Qu.:  -6.431  
-    ##  Median :  -1.440   Median :  -2.502   Median :  -1.743  
-    ##  Mean   :  -1.540   Mean   :  -2.514   Mean   :  -1.304  
-    ##  3rd Qu.:   2.961   3rd Qu.:   2.694   3rd Qu.:   3.471  
-    ##  Max.   : 101.124   Max.   : 119.455   Max.   : 239.130  
-    ##                                                          
-    ##  RDOMESTICMIG2014   RDOMESTICMIG2015  RDOMESTICMIG2016 
-    ##  Min.   :-178.947   Min.   :-85.148   Min.   :-79.432  
-    ##  1st Qu.:  -7.068   1st Qu.: -6.964   1st Qu.: -7.365  
-    ##  Median :  -1.832   Median : -2.111   Median : -1.822  
-    ##  Mean   :  -1.967   Mean   : -1.544   Mean   : -1.674  
-    ##  3rd Qu.:   3.347   3rd Qu.:  3.699   3rd Qu.:  4.323  
-    ##  Max.   : 148.998   Max.   :287.129   Max.   :153.250  
-    ##                                                        
-    ##   RNETMIG2011         RNETMIG2012        RNETMIG2013       
-    ##  Min.   :-128.2051   Min.   :-147.727   Min.   :-100.6171  
-    ##  1st Qu.:  -5.2962   1st Qu.:  -6.902   1st Qu.:  -5.6101  
-    ##  Median :  -0.4894   Median :  -1.494   Median :  -0.9022  
-    ##  Mean   :  -0.5911   Mean   :  -1.455   Mean   :  -0.3033  
-    ##  3rd Qu.:   4.0167   3rd Qu.:   3.917   3rd Qu.:   4.5349  
-    ##  Max.   : 101.1236   Max.   : 120.257   Max.   : 239.1304  
-    ##                                                            
-    ##   RNETMIG2014         RNETMIG2015        RNETMIG2016      
-    ##  Min.   :-178.9474   Min.   :-64.8585   Min.   :-67.4442  
-    ##  1st Qu.:  -6.0624   1st Qu.: -5.9041   1st Qu.: -6.2560  
-    ##  Median :  -0.7864   Median : -1.0733   Median : -0.7426  
-    ##  Mean   :  -0.8448   Mean   : -0.3392   Mean   : -0.5327  
-    ##  3rd Qu.:   4.5007   3rd Qu.:  4.8489   3rd Qu.:  5.4913  
-    ##  Max.   : 149.6908   Max.   :287.1287   Max.   :157.7962  
-    ## 
-
-``` r
 county_data$fips_code <-paste(county_data$STATE*1000 + county_data$COUNTY)
 
 pres_county_data <- merge(pres_results,county_data,by="fips_code",all.x=TRUE)
@@ -997,6 +227,8 @@ pres_county_data <- merge(pres_results,county_data,by="fips_code",all.x=TRUE)
 pres_county_data_1 <-subset(pres_county_data, select = c(fips_code,REGION, DIVISION,STATE,COUNTY,STNAME,CTYNAME,POPESTIMATE2016,total_2016,dem_2016,gop_2016,oth_2016))
 ```
 
+I have tidied the data. Merged these datasets, retained only more
+interesting variables, compute additional variables I found interesting.
 First, I read the two datasets. In order to merge the two datasets, I
 had to first compute the fips code for the county\_data dataframe. To
 compute it, in the same format as given in the other dataset, I
@@ -1006,10 +238,6 @@ a left\_join, in order to preserve county data, and to avoid too many
 NAs in the dataset that would be coerced in, on using a full\_join. I
 then created a final dataset, using a subset of only the variables, that
 I thought were pertinent to problem 1.
-
-1.  describe the data and the more interesting variables. Which
-    variables’ relationship to the election outcomes you might want to
-    analyze?
 
 ``` r
 head(pres_county_data_1)
@@ -1119,35 +347,19 @@ the election results, in order understand the popular vote, and possibly
 adding more variables to the dataset as predictors for the election
 outcome.
 
-1.  plot the percentage of votes for democrats versus the county
-    population. What do you conclude? Use the appropriates
-    labels/scales/colors to make the point clear.
-
 ``` r
 pres_county_data_1$percent_dem <- paste(pres_county_data_1$dem_2016*100/pres_county_data_1$total_2016)
 
 ggplot(data=na.omit(pres_county_data_1),aes(x=as.factor(POPESTIMATE2016),y=as.numeric(percent_dem))) + geom_point(stat="identity")+labs(title= "Votes for democrats vs the county population",x =  "Population",y = "% of votes for democrats")
 ```
 
-![](test_files/figure-markdown_github/1.3-1.png)
+![](2016-election-results_files/figure-markdown_github/1.3-1.png)
 
 On looking at the scatter plot above, we can see that there is a
 positive association between votes for democrats and the county
 population, as the plots are clustered on a slight incline.
 
-1.  Create a map of percentage of votes for democrats. Do your best to
-    reflect the continuous percentage of votes, and the different
-    population sizes across counties and keep county boundaries as well
-    legible as you can. Mark state boundaries on the map.
-
-Explain what did you do, and what worked well, what did not work well.
-Hint: there are many ways to map data in R. You may consider function
-ggplot::map\_data that includes various maps, including US
-administrative boundaries. However, map\_data counties do not include
-FIPS code. You may rely on merging data by state name and county name,
-given you a)convert your names to lower case, and b) remove the word "
-county" from the end of the names. This works for most of the counties,
-except for Lousiana where counties are called “parish”.
+I would like to create a map of percentage of votes for democrats.
 
 ``` r
  county_plot<-function(fips_code,percent_dem){
@@ -1164,7 +376,7 @@ county_plot(na.omit(pres_county_data_1$fips_code),pres_county_data_1$percent_dem
     ## 15005, 2100, 2170, 51515, 2016, 2060, 2290, 2282, 2070, 2110, 2130, 2185,
     ## 2195, 2220, 2230, 2020, 2068, 2013, 2261, 2270, 2275
 
-![](test_files/figure-markdown_github/1.4-1.png)
+![](2016-election-results_files/figure-markdown_github/1.4-1.png)
 
 The map plots the % of votes for democrates in each county, wherein
 darker the color of blue, more is the percentage of votes ofr the
@@ -1172,9 +384,7 @@ democratic party. I used the library chloroplthr for simplicity, and to
 allow for the usage of fips\_code, which would not have been possible if
 using ggmaps.
 
-1.  Create one more visualization regarding the election results on your
-    choice. The plot should be informative and clear. Use appropriate
-    colors/labels/explanations.
+I then created one more visualization regarding the election results.
 
 ``` r
 #all_states <- map_data("state")
@@ -10544,25 +9754,16 @@ county_choropleth(na.omit(unique(df),num_colors = 2,
     ## 15005, 2100, 2170, 51515, 2016, 2060, 2290, 2282, 2070, 2110, 2130, 2185,
     ## 2195, 2220, 2230, 2020, 2068, 2013, 2261, 2270, 2275
 
-![](test_files/figure-markdown_github/1.5-1.png)
+![](2016-election-results_files/figure-markdown_github/1.5-1.png)
 
 The above map aims to show the results of the 2016 elections, wherein
 the lighter blue colour signifies that the democratic party had more
 votes, and the darker blue signifies that the repulican party had more
 votes. This is at the county level.
 
-\#Problem 2: 2016 Election Model (25pt) Use the data from the previous
-problem. Your task is to estimate the probability that a county voted
-for democrats in 2016 elections (ie the probability that democrats
+I then tried to estimate the probability that a county voted for
+democrats in 2016 elections (i.e., the probability that democrats
 received more votes than GOP).
-
-Note: you may want to include more/different variables than what you did
-in the previous problem.
-
-\#Task
-
-1.  List the variables you consider relevant, and explain why do you
-    think these may matter for the election results.
 
 The variables that I would consider important are: 1. fips\_code 2.
 CTYNAME 3. STNAME 4. dem\_2008 5. gop\_2008 6. oth\_2008 7. dem\_2012 8.
@@ -10577,9 +9778,8 @@ the 2016 elections, especially due to the tendency of the democrats
 gaining the popular vote, thus making the variables possibly good
 predictors.
 
-1.  Estimate a logistic regression model where you explain the
-    probability of voting democratic as a function of the variables you
-    considered relevant. Show the results (summary).
+I estimated a logistic regression model to explain the probability of
+voting democratic as a function of the variables I considered relevant.
 
 ``` r
 pres_county_model_data <-subset(pres_county_data, select = c(fips_code,REGION, DIVISION,STATE,COUNTY,CTYNAME,STNAME, dem_2008, gop_2008, oth_2008, dem_2012, gop_2012, oth_2012, POPESTIMATE2016, POPESTIMATE2012, NPOPCHG_2010, NPOPCHG_2011, NPOPCHG_2012, NPOPCHG_2013,NPOPCHG_2014, NPOPCHG_2015, NPOPCHG_2016,total_2016,dem_2016,gop_2016,oth_2016))
@@ -10674,13 +9874,7 @@ summary(log_model_1)
 pR2_1 <- pR2(log_model_1)
 ```
 
-1.  Experiment with a few different specifications and report the best
-    one you got. Explain what did you do. Hint: we did not talk about
-    choosing between different logistic regression models. You may use a
-    pseudo-R2 value in a similar fashion as you use R2 for linear
-    models. For instance, pscl::pR2 will provide a number of different
-    pseudo-R2 values for estimated glm models, you may pick McFadden’s
-    version.
+I experimented with a few different specifications.
 
 ``` r
 #Model 2
@@ -10875,27 +10069,6 @@ considered. The value *p**s**e**u**d**o**R*<sup>2</sup> is 0.5992, which
 means that the model can explain about 60% of the variability in the
 predictor variables. It is seems to be a good fit.
 
-1.  Explain the meaning of statistical significance. What does it mean
-    that an estimated coefficient is statistically significant (at 5%
-    confidence level)?
-
-When we say that the estimated coefficient is statistically significant
-at 5% confidence interval, we are saying that you can say with 95%
-confidence that the association is statistically significant or that we
-reject the null hypothesis. Statistical significance does not signify
-the strength of the association, just that the statistically the
-association is significant, even if the association is weak, or that the
-null hypothesis is rejected, and the alternative hypothesis may not
-represent a strong association between variables. Statistical
-significance particularly means that, we are not rejecting the null
-hypothesis due to random chance, and have evidence to back up the
-alternative hypothesis. The 5% refers to the significance level, if it
-was 1%, we would say that, with 99% confidence the association is
-statistically significant.
-
-1.  Indicate which results are statistically significant in your
-    preferred model.
-
 Taking alpha value as 0.05, thus checking at 95% confidence, the
 variables that are statistically significant are:
 
@@ -10908,11 +10081,6 @@ variables that are statistically significant are:
 7.  POPESTIMATE2012
 8.  NPOPCHG\_2011
 9.  NPOPCHG\_2012 10.NPOPCHG\_2013
-
-10. Interpret the results. Provide correct interpretable explanations
-    about what the most important effect are and what do the particular
-    numeric results mean. Hint: you may use either odds ratios or
-    marginal effects.
 
 ``` r
 summary(log_model_1)
@@ -11063,386 +10231,3 @@ changes in 2011,2012, 2013 and democratic votes in 2008, 2012 impacted
 the democratic victory in 2016 positviely. Also, other third parties
 seem to play a significant role in the democratic victory, although they
 had a differential impact in 2008 and 2012.
-
-\#Problem 3: Simulate the Effect of Additional Random Coefficients
-(25pt) Here your task is to simulate the logit coefficients of
-irrelevant input variables. You may either pick your favorite model from
-above, or use a different specification. 1. Choose a distribution.
-Poisson is fine, but you may pick something else as well.
-
-1.  Create a vector of random numbers, exactly as long as many
-    observations you have in your data.
-
-``` r
-str(pres_county_model_data)
-```
-
-    ## 'data.frame':    3112 obs. of  27 variables:
-    ##  $ fips_code      : int  1001 1003 1005 1007 1009 1011 1013 1015 1017 1019 ...
-    ##  $ REGION         : int  3 3 3 3 3 3 3 3 3 3 ...
-    ##  $ DIVISION       : int  6 6 6 6 6 6 6 6 6 6 ...
-    ##  $ STATE          : int  1 1 1 1 1 1 1 1 1 1 ...
-    ##  $ COUNTY         : int  1 3 5 7 9 11 13 15 17 19 ...
-    ##  $ CTYNAME        : Factor w/ 1927 levels "Abbeville County",..: 87 94 105 154 169 230 240 253 302 324 ...
-    ##  $ STNAME         : Factor w/ 51 levels "Alabama","Alaska",..: 1 1 1 1 1 1 1 1 1 1 ...
-    ##  $ dem_2008       : int  6093 19386 5697 2299 3522 4011 4188 16334 6799 2306 ...
-    ##  $ gop_2008       : int  17403 61271 5866 6262 20389 1391 5485 32348 8067 7298 ...
-    ##  $ oth_2008       : int  145 756 67 83 356 13 36 560 90 141 ...
-    ##  $ dem_2012       : int  6354 18329 5873 2200 2961 4058 4367 15500 6853 2126 ...
-    ##  $ gop_2012       : int  17366 65772 5539 6131 20741 1250 5081 30272 7596 7494 ...
-    ##  $ oth_2012       : int  189 887 47 60 278 10 35 468 113 141 ...
-    ##  $ POPESTIMATE2016: int  55416 208563 25965 22643 57704 10362 19998 114611 33843 25725 ...
-    ##  $ POPESTIMATE2012: int  55027 190403 27132 22645 57772 10654 20665 117208 34084 26017 ...
-    ##  $ NPOPCHG_2010   : int  171 934 -109 -58 52 -19 -8 -118 -69 -9 ...
-    ##  $ NPOPCHG_2011   : int  513 3454 -22 -125 331 -170 -90 -732 -95 96 ...
-    ##  $ NPOPCHG_2012   : int  -228 3750 -194 -91 65 -68 -183 -528 78 -56 ...
-    ##  $ NPOPCHG_2013   : int  -235 4744 -194 -144 -26 -78 -335 -733 39 57 ...
-    ##  $ NPOPCHG_2014   : int  185 4598 -175 10 -125 136 -47 -638 -127 -130 ...
-    ##  $ NPOPCHG_2015   : int  58 3945 -493 50 55 -257 -157 -552 47 -218 ...
-    ##  $ NPOPCHG_2016   : int  381 4873 -305 82 28 -93 -128 -674 -200 -1 ...
-    ##  $ total_2016     : int  24661 94090 10390 8748 25384 4701 8685 47376 13778 10503 ...
-    ##  $ dem_2016       : int  5908 18409 4848 1874 2150 3530 3716 13197 5763 1524 ...
-    ##  $ gop_2016       : int  18110 72780 5431 6733 22808 1139 4891 32803 7803 8809 ...
-    ##  $ oth_2016       : int  643 2901 111 141 426 32 78 1376 212 170 ...
-    ##  $ win            : num  0 0 0 0 0 1 0 0 0 0 ...
-
-``` r
-rand <- rpois(3112,27)
-```
-
-1.  Estimate the logistic regression model using your former
-    specification, but adding the random number as an additional
-    explanatory variable.
-
-``` r
-log_model_5 <- suppressWarnings(glm( formula = win~dem_2008+gop_2008+oth_2008+dem_2012+
-                      gop_2012+oth_2012+POPESTIMATE2016+POPESTIMATE2012+
-                      NPOPCHG_2010+NPOPCHG_2011+NPOPCHG_2012+
-                      NPOPCHG_2013+NPOPCHG_2014+NPOPCHG_2015+NPOPCHG_2016+rand, 
-                    data = pres_county_model_data,family = binomial(link = "logit") ))
-
-
-summary(log_model_5)
-```
-
-    ## 
-    ## Call:
-    ## glm(formula = win ~ dem_2008 + gop_2008 + oth_2008 + dem_2012 + 
-    ##     gop_2012 + oth_2012 + POPESTIMATE2016 + POPESTIMATE2012 + 
-    ##     NPOPCHG_2010 + NPOPCHG_2011 + NPOPCHG_2012 + NPOPCHG_2013 + 
-    ##     NPOPCHG_2014 + NPOPCHG_2015 + NPOPCHG_2016 + rand, family = binomial(link = "logit"), 
-    ##     data = pres_county_model_data)
-    ## 
-    ## Deviance Residuals: 
-    ##     Min       1Q   Median       3Q      Max  
-    ## -4.3709  -0.3517  -0.1821  -0.0138   6.2148  
-    ## 
-    ## Coefficients: (1 not defined because of singularities)
-    ##                   Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)     -1.414e+00  4.331e-01  -3.265 0.001094 ** 
-    ## dem_2008         1.236e-04  5.245e-05   2.356 0.018449 *  
-    ## gop_2008        -2.894e-04  6.554e-05  -4.415 1.01e-05 ***
-    ## oth_2008        -9.298e-04  3.677e-04  -2.529 0.011441 *  
-    ## dem_2012         4.815e-04  5.495e-05   8.763  < 2e-16 ***
-    ## gop_2012        -4.770e-04  6.318e-05  -7.550 4.34e-14 ***
-    ## oth_2012         2.329e-03  4.266e-04   5.460 4.77e-08 ***
-    ## POPESTIMATE2016 -4.018e-04  2.083e-04  -1.930 0.053660 .  
-    ## POPESTIMATE2012  4.156e-04  2.080e-04   1.998 0.045743 *  
-    ## NPOPCHG_2010     7.334e-04  7.342e-04   0.999 0.317850    
-    ## NPOPCHG_2011     9.782e-04  2.553e-04   3.831 0.000128 ***
-    ## NPOPCHG_2012     5.568e-04  2.044e-04   2.724 0.006451 ** 
-    ## NPOPCHG_2013     1.295e-03  3.161e-04   4.098 4.18e-05 ***
-    ## NPOPCHG_2014     8.269e-05  4.372e-04   0.189 0.849984    
-    ## NPOPCHG_2015     2.850e-04  4.240e-04   0.672 0.501485    
-    ## NPOPCHG_2016            NA         NA      NA       NA    
-    ## rand            -2.058e-02  1.602e-02  -1.285 0.198828    
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## (Dispersion parameter for binomial family taken to be 1)
-    ## 
-    ##     Null deviance: 2696.3  on 3110  degrees of freedom
-    ## Residual deviance: 1080.6  on 3095  degrees of freedom
-    ##   (1 observation deleted due to missingness)
-    ## AIC: 1112.6
-    ## 
-    ## Number of Fisher Scoring iterations: 10
-
-``` r
-pR2_5 <- pR2(log_model_5)
-```
-
-1.  store the coefficient for the random variable.
-
-Hint: function coef gives you the estimated coefficients of the model.
-It is a named vector, you can extract the coefficient of interest as
-coef(m)\[“varname”\] where m is the estimated modelmand “varname” is the
-name of the variable of interest.
-
-``` r
-rand_coef <- coef(log_model_5)["rand"]
-```
-
-1.  repeat these steps a large number R &gt; 1000 times. Now you have R
-    estimates of the coefficient for pure carbage features.
-
-``` r
-rand_arr = array()
-
-suppressWarnings(system.time
-(
-for(x in 1:1000) {
-
-rand = rpois(3112,27)
-log_model_6 = glm( formula = win~dem_2008+gop_2008+oth_2008+dem_2012+
-                      gop_2012+oth_2012+POPESTIMATE2016+POPESTIMATE2012+
-                      NPOPCHG_2010+NPOPCHG_2011+NPOPCHG_2012+
-                      NPOPCHG_2013+NPOPCHG_2014+NPOPCHG_2015+NPOPCHG_2016+rand, 
-                    data = pres_county_model_data,family = binomial(link = "logit") )
-  rand_arr[x]= coef(log_model_6)["rand"]
-}
-))
-```
-
-    ##    user  system elapsed 
-    ##  43.699   4.391  50.316
-
-1.  What are the (sample) mean and (sample) standard deviation of the
-    estimated coefficients?
-
-``` r
-mean(rand_arr)
-```
-
-    ## [1] 0.0003430657
-
-``` r
-sd(rand_arr)
-```
-
-    ## [1] 0.01582681
-
-1.  Find the 95% confidence interval of the coefficient based on your
-    simulations.
-
-``` r
-quantile(rand_arr, 0.025)
-```
-
-    ##        2.5% 
-    ## -0.02978492
-
-``` r
-quantile(rand_arr,0.975)
-```
-
-    ##     97.5% 
-    ## 0.0313504
-
-1.  Plot the distribution of the estimates (histogram, or another
-    density plot).
-
-``` r
-qplot(rand_arr, geom ="histogram", main = "Distribution of the estimates")
-```
-
-    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
-
-![](test_files/figure-markdown_github/unnamed-chunk-6-1.png) 5. Assume
-the estimates are randomly distributed with mean and standard deviation
-as you found above. What are the theoretical 95% confidence intervals
-for the results?
-
-``` r
-#left
--1.96*sd(rand_arr)
-```
-
-    ## [1] -0.03102055
-
-``` r
-#right
-1.96*sd(rand_arr)
-```
-
-    ## [1] 0.03102055
-
-1.  Extra credit (2pt): run the simulations in parallel. Report how much
-    faster did it go compared to sequential processing.
-
-``` r
-library(doParallel)
-```
-
-    ## Loading required package: foreach
-
-    ## Loading required package: iterators
-
-    ## Loading required package: parallel
-
-``` r
-cluster = makeCluster(4)
-clusterExport(cluster, "pres_county_model_data")
-
-registerDoParallel(cores = cluster)
-
-suppressWarnings(system.time(
-foreach(i = 1:1000, .combine=) %dopar% {
- rand = rpois(3112,27)
-  log_model_6 = glm( formula = win~dem_2008+gop_2008+oth_2008+dem_2012+
-                      gop_2012+oth_2012+POPESTIMATE2016+POPESTIMATE2012+
-                      NPOPCHG_2010+NPOPCHG_2011+NPOPCHG_2012+
-                      NPOPCHG_2013+NPOPCHG_2014+NPOPCHG_2015+NPOPCHG_2016+rand, 
-                    data = pres_county_model_data,family = binomial(link = "logit") )
-  rand_arr[x]= coef(log_model_6)["rand"]
-}
-))
-```
-
-    ##    user  system elapsed 
-    ##  32.742   4.181  26.839
-
-\#Problem 4: Coin Tossing Game
-
-You are offered to participate in a coing-tossing game. The rules are
-following: the coin is tossed until tail comes up. If tail comes up in
-the first flip (T), you receive USD 1. If a single head pops up before
-the tail (H,T), you get USD 2. If two heads pop up (H,H,T), you receive
-$4. If three heads appear before the first tail (H,H,H,T), you get USD
-8. And so forth, so if the realized sequence is n heads and thereafter a
-tail (H,H,…,H,T), you will receive $2n. The tosses are independent.
-
-1.Assume the coin fair. (a) Compute your expected payoff in this game.
-
-In this case, we have a geometric progression.
-
-The way we can calculate the probabilities ,
-
-Sample Space Payoff Probability {T} 1
-2<sup>0</sup> \* 0.5
- {H,T} 2
-2<sup>1</sup> \* 0.5<sup>2</sup>
- {H,H,T} 4
-2<sup>2</sup> \* 0.5<sup>3</sup>
- {H,H,H,T} 8
-2<sup>3</sup> \* 0.5<sup>4</sup>
-
-Therefore the expected payoff would be,
-$$\\sum\_{n=1}^n (2^(n-1))\*0.5^n$$
-
-1.  How much would you actually be willing to pay for the participation?
-    Note: we are asking your judgement/opinion here, not a computed
-    value.
-
-Since a higher payoff probability has a decaying effect, I would bet a
-$1, as I have a guarantee in losing nothing, in that scenario.
-
-1.  Assume such a game is played 10 times and the outcomes are: twice
-    (T); three times (H,T); once (H,H,T); twice (H,H,H,T), once
-    (H,H,H,H,T); and once (H,H,H,H,H,H,T). This is your data. Your task
-    is to nd the Maximum Likelihood estimator of p the probability of
-    receiving a head.
-
-``` r
-ss <- c(0,0,1,1,1,2,3,3,4,6)
- 
-p <- 0.5
-```
-
-1.  Write down the probability to receive n heads and a tail.
-
-    For ‘n’ heads and a tail, the coin is tossed n times and one more
-    time for a tail. Thus we can say: x = n + 1 And using the formula
-    for probability density function for a geometric distribution, Pr(Y
-    = x) =
-    ((1 − *p*)<sup>(</sup>*x* − 1)) \* *p*
-     Therefore, Pr(Y = n+1) =
-    ((1 − *p*)<sup>(</sup>(*n* + 1) − 1)) \* *p*
-     =
-    ((1 − *p*)<sup>*n*</sup>) \* *p*
-
-2.  Write down the probability to receive all 10 outcomes listed above.
-
-    For all the 10 outcomes, we can write the expected probabailities
-    as, =&gt; Pr(Y = 1; p) \* Pr(Y = 1; p) \* Pr(Y = 2; p) \* Pr(Y =
-    2; p) \* Pr(Y = 2; p)
-    -   Pr(Y = 3; p) \* Pr(Y = 4; p) \* Pr(Y = 4; p) \* Pr(Y = 5; p) \*
-        Pr(Y = 7; p)
-
-        =&gt; ((1-p)^(1-1)\* p) \* ((1-p)^(1-1)\* p) \*
-        ((1-p)^(2-1)\* p) \* ((1-p)^(2-1)\* p) \* ((1-p)^(2-1)\* p) \*
-        ((1-p)^(3-1)\* p) \* ((1-p)^(4-1)\* p) \* ((1-p)^(4-1)\* p) \*
-        ((1-p)^(5-1)\* p) \* ((1-p)^(7-1)\* p)
-
-        =&gt; p \* p \* (1-p)*p * (1-p)*p * (1-p)*p *(1-p)^(2)*p *
-        (1-p)^(3)*p * (1-p)^(3)*p * (1-p)^(4)*p * (1-p)^(6)\*p
-
-        =&gt;
-        *p*<sup>(</sup>10) \* (1 − *p*)<sup>(</sup>21)
-
-3.  Write the log-likelihood function of this data as a function of the
-    parameter.
-
-    If we apply log to the previous equation we get, =&gt; log(p^10 x
-    (1-p)^21) =&gt; 10log(p) + 21log(1-p)
-
-4.  Analytically solve this log-likelihood for the optimal probabilty p
-    . Set the derivative to 0 and solve for p,
-    $$\\frac{\\partial L(p)}{\\partial p} = 0$$
-    $$\\frac{\\partial \[10logp + 21log(1-p)\]}{\\partial p} = 0$$
-
-<!-- -->
-
-     => 21(1/p) + 10(1/1-p)(-1)  = 0
-      =>  21/p - 10(1/1 -p) = 0 
-      => 21/p = 10/(1-p)
-      => 21(1-p) = 10p
-      => 21 -21p = 10p
-      => 21 -31p = 0
-      => 21/31 = p 
-      Therefore, p=0.677
-
-1.  Plot the log-likelihood as a function of p. Mark the ML estimator
-    *h**a**t**p* on the figure.
-
-``` r
-library(maxLik)
-```
-
-    ## Loading required package: miscTools
-
-    ## 
-    ## Please cite the 'maxLik' package as:
-    ## Henningsen, Arne and Toomet, Ott (2011). maxLik: A package for maximum likelihood estimation in R. Computational Statistics 26(3), 443-458. DOI 10.1007/s00180-010-0217-1.
-    ## 
-    ## If you have questions, suggestions, or comments regarding the 'maxLik' package, please use a forum or 'tracker' at maxLik's R-Forge site:
-    ## https://r-forge.r-project.org/projects/maxlik/
-
-``` r
-ss <- c(0,0,1,1,1,2,3,3,4,6)
-p <- 0.5
-
-loglik <- function(p) 21*log(p) + 10*log(1-p)
-loglik(p)
-```
-
-    ## [1] -21.48756
-
-``` r
-{curve(loglik, 0, 1)
-abline(v= 0.677)}
-```
-
-![](test_files/figure-markdown_github/unnamed-chunk-10-1.png)
-
-\#Statement of Compliance
-
-I affirm that I have had no conversation regarding this exam with any
-persons other than the instructor or the teaching assistant. Further, I
-certify that the attached work represents my own thinking. Any
-information, concepts, or words that originate from other sources are
-cited in accordance with University of Washington guidelines as
-published in the Academic Code (available on the course website). I am
-aware of the serious consequences that result from improper discussions
-with others or from the improper citation of work that is not my own.
-(signature) Neha Pothina (Name in place of Signature) (date) 12/12/2017
